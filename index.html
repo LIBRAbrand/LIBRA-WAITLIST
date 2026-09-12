@@ -15,7 +15,7 @@
     --accent:#f2f1ec;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{height:100%;}
+  html,body{height:100%;background:#000000;}
   body{
     background:var(--bg);
     color:var(--fg);
@@ -301,8 +301,8 @@
           <input type="text" id="firstName" name="firstName" required>
         </div>
         <div class="sub-field">
-          <label for="lastName">Last name</label>
-          <input type="text" id="lastName" name="lastName" required>
+          <label for="lastName">Last name <span class="optional-tag">(optional)</span></label>
+          <input type="text" id="lastName" name="lastName">
         </div>
       </div>
 
@@ -313,7 +313,7 @@
 
       <div class="field">
         <label for="email">E-Mail <span class="optional-tag">(optional)</span></label>
-        <input type="email" id="email" name="email">
+        <input type="email" id="email" name="contactEmail">
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
@@ -399,8 +399,8 @@
 
     const data = {
       firstName: document.getElementById('firstName').value,
-      lastName: document.getElementById('lastName').value,
-      phone: document.getElementById('phone').value,
+      lastName: document.getElementById('lastName').value || '(not provided)',
+      phone: document.getElementById('phone').value || '(not provided)',
       email: document.getElementById('email').value || '(not provided)'
     };
 
