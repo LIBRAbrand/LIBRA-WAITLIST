@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --fg:#f2f1ec;
+    --muted:#8b8b86;
+    --accent:#f2f1ec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:#000000;}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    position:relative;
+    overflow:hidden;
+    padding:24px;
+  }
+
+  /* grain texture overlay (whole page) */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.35;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC45Ii8+PC9zdmc+");
+    background-repeat:repeat;
+    z-index:5;
+  }
+
+  .vignette{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.75) 100%);
+    z-index:4;
+  }
+
+  .container{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:380px;
+    text-align:center;
+  }
+
+  /* --- Logo with grain --- */
+  .logo-wrap{
+    position:relative;
+    display:inline-block;
+    margin-bottom:48px;
+  }
+  .logo{
+    font-family:'Anton', sans-serif;
+    font-size:52px;
+    letter-spacing:2px;
+    font-weight:400;
+    text-transform:uppercase;
+    color:var(--fg);
+    line-height:1;
+  }
+  .logo span{ color:var(--muted); }
+  .logo-wrap::after{
+    content:"LIBRA.";
+    position:absolute;
+    inset:0;
+    font-family:'Anton', sans-serif;
+    font-size:52px;
+    letter-spacing:2px;
+    font-weight:400;
+    text-transform:uppercase;
+    line-height:1;
+    color:transparent;
+    background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC45IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIiBvcGFjaXR5PSIxIi8+PC9zdmc+");
+    background-size:120px;
+    -webkit-background-clip:text;
+    background-clip:text;
+    mix-blend-mode:overlay;
+    opacity:0.9;
+    pointer-events:none;
+  }
+
+  /* --- Password gate --- */
+  #gate-view{ }
+  .gate-row{
+    display:flex;
+    border-bottom:1px solid rgba(242,241,236,0.35);
+    align-items:center;
+  }
+  .gate-row input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--fg);
+    font-size:14px;
+    letter-spacing:1px;
+    padding:14px 4px;
+    font-family:inherit;
+  }
+  .gate-row input::placeholder{
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:13px;
+  }
+  .enter-btn{
+    background:var(--fg);
+    color:#000;
+    border:none;
+    padding:14px 20px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .enter-btn:hover{ opacity:0.85; }
+
+  .gate-error{
+    color:#e2534d;
+    font-size:12px;
+    letter-spacing:0.5px;
+    margin-top:12px;
+    min-height:14px;
+  }
+
+  .join-link{
+    display:inline-block;
+    margin-top:36px;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+    transition:border-color 0.2s;
+  }
+  .join-link:hover{ color:var(--fg); border-color:var(--fg); }
+
+  /* --- Waitlist form --- */
+  #waitlist-view{ display:none; }
+
+  .field{
+    border-bottom:1px solid rgba(242,241,236,0.35);
+    margin-bottom:26px;
+    text-align:left;
+  }
+  .field label{
+    display:block;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--fg);
+    font-size:15px;
+    padding-bottom:10px;
+    font-family:inherit;
+  }
+
+  /* Nom / Prénom cote à cote */
+  .field-row{
+    display:flex;
+    gap:16px;
+    border-bottom:1px solid rgba(242,241,236,0.35);
+    margin-bottom:26px;
+    text-align:left;
+  }
+  .field-row .sub-field{
+    flex:1;
+  }
+  .field-row .sub-field:first-child{
+    border-right:1px solid rgba(242,241,236,0.2);
+    padding-right:16px;
+  }
+  .field-row label{
+    display:block;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .field-row input{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--fg);
+    font-size:15px;
+    padding-bottom:10px;
+    font-family:inherit;
+  }
+
+  .optional-tag{
+    color:var(--muted);
+    font-weight:400;
+    text-transform:none;
+    letter-spacing:0;
+  }
+
+  .submit-btn{
+    width:100%;
+    background:transparent;
+    border:1px solid var(--fg);
+    color:var(--fg);
+    padding:16px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    cursor:pointer;
+    margin-top:12px;
+    transition:background 0.2s, color 0.2s;
+  }
+  .submit-btn:hover{ background:var(--fg); color:#000; }
+  .submit-btn:disabled{ opacity:0.5; cursor:default; }
+
+  .back-link{
+    display:inline-block;
+    margin-top:24px;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-decoration:none;
+  }
+  .back-link:hover{ color:var(--fg); }
+
+  .form-msg{
+    font-size:12px;
+    letter-spacing:0.5px;
+    margin-top:16px;
+    min-height:14px;
+  }
+  .form-msg.success{ color:#8fd19e; }
+  .form-msg.error{ color:#e2534d; }
+
+  #success-view{
+    display:none;
+    text-align:center;
+  }
+  #success-view p{
+    color:var(--muted);
+    font-size:13px;
+    letter-spacing:0.5px;
+    line-height:1.6;
+    margin-top:16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo">LIBRA<span>.</span></div>
+  </div>
+
+  <!-- GATE -->
+  <div id="gate-view">
+    <div class="gate-row">
+      <input type="password" id="passwordInput" placeholder="Password" autocomplete="off">
+      <button class="enter-btn" id="enterBtn">Enter</button>
+    </div>
+    <div class="gate-error" id="gateError"></div>
+
+    <a href="#" class="join-link" id="joinLink">Join waitlist</a>
+  </div>
+
+  <!-- WAITLIST FORM -->
+  <div id="waitlist-view">
+    <form id="waitlistForm">
+
+      <div class="field-row">
+        <div class="sub-field">
+          <label for="firstName">First name</label>
+          <input type="text" id="firstName" name="firstName" required>
+        </div>
+        <div class="sub-field">
+          <label for="lastName">Last name <span class="optional-tag">(optional)</span></label>
+          <input type="text" id="lastName" name="lastName">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone" required>
+      </div>
+
+      <div class="field">
+        <label for="email">E-Mail <span class="optional-tag">(optional)</span></label>
+        <input type="email" id="email" name="contactEmail">
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+      <div class="form-msg" id="formMsg"></div>
+    </form>
+
+    <a href="#" class="back-link" id="backLink">← Back</a>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-view">
+    <p id="successMsg">You're on the list. We'll be in touch.</p>
+    <a href="#" class="back-link" id="backLink2">← Back</a>
+  </div>
+</div>
+
+<script>
+  // ====== CONFIG ======
+  // Mot de passe d'accès (change-le ici)
+  const SITE_PASSWORD = "libra2026";
+
+  // URL Formspree pour recevoir les inscriptions.
+  // Va sur https://formspree.io, crée un formulaire gratuit,
+  // et colle l'URL fournie ici (format: https://formspree.io/f/XXXXXXX)
+  const FORMSPREE_URL = "https://formspree.io/f/mnpalaaq";
+  // =====================
+
+  const gateView = document.getElementById('gate-view');
+  const waitlistView = document.getElementById('waitlist-view');
+  const successView = document.getElementById('success-view');
+
+  const passwordInput = document.getElementById('passwordInput');
+  const enterBtn = document.getElementById('enterBtn');
+  const gateError = document.getElementById('gateError');
+
+  function showView(view){
+    gateView.style.display = 'none';
+    waitlistView.style.display = 'none';
+    successView.style.display = 'none';
+    view.style.display = 'block';
+  }
+
+  function checkPassword(){
+    if(passwordInput.value.trim().toLowerCase() === SITE_PASSWORD.toLowerCase()){
+      gateError.style.color = '#8fd19e';
+      gateError.textContent = 'Access granted.';
+      // Redirige vers le site principal ici si besoin :
+      // window.location.href = "home.html";
+    } else {
+      gateError.style.color = '#e2534d';
+      gateError.textContent = 'Incorrect password.';
+    }
+  }
+
+  enterBtn.addEventListener('click', checkPassword);
+  passwordInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') checkPassword();
+  });
+
+  document.getElementById('joinLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showView(waitlistView);
+  });
+  document.getElementById('backLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showView(gateView);
+  });
+  document.getElementById('backLink2').addEventListener('click', (e) => {
+    e.preventDefault();
+    showView(gateView);
+  });
+
+  const form = document.getElementById('waitlistForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const formMsg = document.getElementById('formMsg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formMsg.className = 'form-msg';
+    formMsg.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const data = {
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value || '(not provided)',
+      phone: document.getElementById('phone').value || '(not provided)',
+      email: document.getElementById('email').value || '(not provided)'
+    };
+
+    try{
+      if(FORMSPREE_URL.includes('YOUR_FORM_ID')){
+        throw new Error('CONFIG_MISSING');
+      }
+      const res = await fetch(FORMSPREE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if(res.ok){
+        form.reset();
+        showView(successView);
+      } else {
+        throw new Error('SUBMIT_FAILED');
+      }
+    } catch(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+      if(err.message === 'CONFIG_MISSING'){
+        formMsg.classList.add('error');
+        formMsg.textContent = 'Formspree not configured yet — set FORMSPREE_URL in the code.';
+      } else {
+        formMsg.classList.add('error');
+        formMsg.textContent = 'Something went wrong. Please try again.';
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
