@@ -295,25 +295,14 @@
   <div id="waitlist-view">
     <form id="waitlistForm">
 
-      <div class="field-row">
-        <div class="sub-field">
-          <label for="firstName">First name</label>
-          <input type="text" id="firstName" name="firstName" required>
-        </div>
-        <div class="sub-field">
-          <label for="lastName">Last name <span class="optional-tag">(optional)</span></label>
-          <input type="text" id="lastName" name="lastName">
-        </div>
+      <div class="field">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="firstName" required>
       </div>
 
       <div class="field">
         <label for="phone">Phone number</label>
         <input type="tel" id="phone" name="phone" required>
-      </div>
-
-      <div class="field">
-        <label for="email">E-Mail <span class="optional-tag">(optional)</span></label>
-        <input type="email" id="email" name="contactEmail">
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
@@ -399,9 +388,7 @@
 
     const data = {
       firstName: document.getElementById('firstName').value,
-      lastName: document.getElementById('lastName').value || '(not provided)',
-      phone: document.getElementById('phone').value || '(not provided)',
-      email: document.getElementById('email').value || '(not provided)'
+      phone: document.getElementById('phone').value
     };
 
     try{
