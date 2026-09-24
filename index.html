@@ -324,10 +324,8 @@
   // Mot de passe d'accès (change-le ici)
   const SITE_PASSWORD = "libra2026";
 
-  // URL Formspree pour recevoir les inscriptions.
-  // Va sur https://formspree.io, crée un formulaire gratuit,
-  // et colle l'URL fournie ici (format: https://formspree.io/f/XXXXXXX)
-  const FORMSPREE_URL = "https://formspree.io/f/mnpalaaq";
+  // URL de ton Google Apps Script (les inscriptions arrivent dans ta Google Sheet)
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwk68wpQFyMElp3Kg_KujcJ3zaJderp3ZnGetZNBalYmBWnkpHGKb3B891soOBXzaI/exec";
   // =====================
 
   const gateView = document.getElementById('gate-view');
@@ -392,33 +390,20 @@
     };
 
     try{
-      if(FORMSPREE_URL.includes('YOUR_FORM_ID')){
-        throw new Error('CONFIG_MISSING');
-      }
-      const res = await fetch(FORMSPREE_URL, {
+      await fetch(SHEET_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(data)
+        mode: 'no-cors',
+        body: new URLSearchParams(data)
       });
-      if(res.ok){
-        form.reset();
-        showView(successView);
-      } else {
-        throw new Error('SUBMIT_FAILED');
-      }
+      form.reset();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+      showView(successView);
     } catch(err){
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit';
-      if(err.message === 'CONFIG_MISSING'){
-        formMsg.classList.add('error');
-        formMsg.textContent = 'Formspree not configured yet — set FORMSPREE_URL in the code.';
-      } else {
-        formMsg.classList.add('error');
-        formMsg.textContent = 'Something went wrong. Please try again.';
-      }
+      formMsg.classList.add('error');
+      formMsg.textContent = 'Something went wrong. Please try again.';
     }
   });
 </script>
