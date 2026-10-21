@@ -406,6 +406,22 @@
       formMsg.textContent = 'Something went wrong. Please try again.';
     }
   });
+const target = new Date("2026-10-24T20:00:00+01:00");
+const pad = n => String(n).padStart(2, "0");
+
+function tick() {
+  const diff = target - new Date();
+  if (diff <= 0) {
+    document.getElementById("countdown").textContent = "Le drop est ouvert !";
+    return;
+  }
+  document.getElementById("d").textContent = pad(Math.floor(diff / 86400000));
+  document.getElementById("h").textContent = pad(Math.floor(diff / 3600000) % 24);
+  document.getElementById("m").textContent = pad(Math.floor(diff / 60000) % 60);
+  document.getElementById("s").textContent = pad(Math.floor(diff / 1000) % 60);
+}
+tick();
+setInterval(tick, 1000);
 </script>
 
 </body>
